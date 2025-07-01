@@ -3,6 +3,7 @@ import pandas as pd
 import pickle
 import matplotlib.pyplot as plt
 
+# মডেল ক্যাশ করে লোড করো
 @st.cache_resource
 def load_model():
     with open('models/fraud_model.pkl', 'rb') as f:
@@ -10,6 +11,7 @@ def load_model():
 
 model = load_model()
 
+st.set_page_config(page_title="Fraud Checker App", layout="centered")
 st.title("🚨 Fraud Customer Checker App")
 
 rename_dict = {
@@ -30,7 +32,7 @@ if uploaded_file is not None:
         data_display['Is Premium Customer'] = data_display['Is Premium Customer'].map({0: 'No', 1: 'Yes'})
 
     st.subheader("🔎 Uploaded Data Preview:")
-    st.dataframe(data_display)
+    st.dataframe(data_display, use_container_width=True)
 
     if st.button("🔮 Predict Fraud"):
         data_for_pred = data_display.rename(columns={v: k for k, v in rename_dict.items()})
@@ -42,20 +44,27 @@ if uploaded_file is not None:
             data_for_pred = data_for_pred.drop('fraud_label', axis=1)
 
         prediction = model.predict(data_for_pred)
-        prediction_labels = ['No Fraud' if pred == 0 else 'Fraud' for pred in prediction]
+        prediction_labels = ['Fraud' if pred == 1 else 'No Fraud' for pred in prediction]
 
         result_df = data_display.copy()
         result_df['Fraud Prediction'] = prediction_labels
 
-        plt.close('all')
+        # ✅ প্রথমে টেবিল দেখাও
+        st.subheader("✅ Prediction Result:")
+        st.dataframe(result_df, use_container_width=True)
 
+        # ✅ এরপর pie chart
+        plt.close('all')
         st.subheader("📊 Fraud Prediction Summary:")
         counts = result_df['Fraud Prediction'].value_counts()
 
-        fig1, ax1 = plt.subplots(figsize=(3,3), dpi=70)
-        ax1.pie(counts, labels=counts.index, autopct='%1.1f%%', startangle=90, colors=['#66b3ff','#ff6666'])
+        fig1, ax1 = plt.subplots(figsize=(3, 3), dpi=70)
+        ax1.pie(counts, labels=counts.index, autopct='%1.1f%%', startangle=90,
+                colors=['#66b3ff', '#ff6666'], textprops={'fontsize': 10})
         ax1.axis('equal')
         st.pyplot(fig1)
 
+        # ✅ Download CSV
         csv = result_df.to_csv(index=False).encode('utf-8')
-        st.download_button("⬇️ Download Predictions", data=csv, file_name="predictions.csv", mime="text/csv")
+        st.download_button("⬇️ Download Predictions", data=csv,
+                           file_name="predictions.csv", mime="text/csv")
