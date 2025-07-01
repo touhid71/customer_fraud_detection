@@ -12,7 +12,7 @@ def load_model():
 model = load_model()
 
 st.set_page_config(page_title="Fraud Checker App", layout="centered")
-st.title("🚨 Fraud Customer Checker App")
+st.title("Fraud Customer Checker App")
 
 rename_dict = {
     'feature1': 'Transaction Amount',
