@@ -2,8 +2,10 @@ import streamlit as st
 import pandas as pd
 import pickle
 import matplotlib.pyplot as plt
+import requests
+from io import StringIO
 
-# মডেল ক্যাশ করে লোড করো
+# ✅ মডেল লোড করা
 @st.cache_resource
 def load_model():
     with open('models/fraud_model.pkl', 'rb') as f:
@@ -11,9 +13,11 @@ def load_model():
 
 model = load_model()
 
+# ✅ পেজ কনফিগ
 st.set_page_config(page_title="Fraud Checker App", layout="centered")
 st.title("Fraud Customer Checker🚨")
 
+# ✅ কাস্টম কলাম নাম দেখানোর জন্য রিনেম
 rename_dict = {
     'feature1': 'Transaction Amount',
     'feature2': 'Customer Age',
@@ -22,12 +26,25 @@ rename_dict = {
     'feature5': 'Account Balance',
 }
 
-# 📌 CSV আপলোড নির্দেশনা
+# ✅ আপলোড নির্দেশনা ও নোট
 st.markdown("""
 **📂 Upload a CSV file**  
 *Note: upload a CSV file with the following columns:* `feature1`, `feature2`, `feature3`, `feature4`, `feature5`
 """)
 
+# ✅ GitHub থেকে Sample CSV ফাইল ডাউনলোড বাটন
+sample_url = "https://raw.githubusercontent.com/touhid71/customer_fraud_detection/main/data/sample_input.csv"
+response = requests.get(sample_url)
+sample_csv = response.text
+
+st.download_button(
+    label="📥 Download Sample CSV",
+    data=sample_csv,
+    file_name='sample_input.csv',
+    mime='text/csv'
+)
+
+# ✅ ফাইল আপলোড
 uploaded_file = st.file_uploader("", type=['csv'])
 
 if uploaded_file is not None:
@@ -55,11 +72,11 @@ if uploaded_file is not None:
         result_df = data_display.copy()
         result_df['Fraud Prediction'] = prediction_labels
 
-        # ✅ প্রথমে টেবিল দেখাও
+        # ✅ রেজাল্ট টেবিল
         st.subheader("✅ Prediction Result:")
         st.dataframe(result_df, use_container_width=True)
 
-        # ✅ এরপর pie chart
+        # ✅ Pie Chart
         plt.close('all')
         st.subheader("📊 Fraud Prediction Summary:")
         counts = result_df['Fraud Prediction'].value_counts()
@@ -70,7 +87,7 @@ if uploaded_file is not None:
         ax1.axis('equal')
         st.pyplot(fig1)
 
-        # ✅ Download CSV
+        # ✅ প্রেডিকশন CSV ডাউনলোড
         csv = result_df.to_csv(index=False).encode('utf-8')
         st.download_button("⬇️ Download Predictions", data=csv,
                            file_name="predictions.csv", mime="text/csv")
