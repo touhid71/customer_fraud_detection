@@ -22,7 +22,13 @@ rename_dict = {
     'feature5': 'Account Balance',
 }
 
-uploaded_file = st.file_uploader("📂 Upload a CSV file", type=['csv'])
+# 📌 CSV আপলোড নির্দেশনা
+st.markdown("""
+**📂 Upload a CSV file**  
+*Note: upload a CSV file with the following columns:* `feature1`, `feature2`, `feature3`, `feature4`, `feature5`
+""")
+
+uploaded_file = st.file_uploader("", type=['csv'])
 
 if uploaded_file is not None:
     data = pd.read_csv(uploaded_file)
