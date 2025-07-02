@@ -34,11 +34,18 @@ rename_dict = {
 # ✅ Instruction
 st.markdown("""
 **📂 Upload a CSV file**  
-Your file **must** have these 5 columns:  
-`feature1`, `feature2`, `feature3`, `feature4`, `feature5`
+Your file **must include** the following 6 columns (case-sensitive):
 
-App will auto calculate extra features (engineering).
+Like `feature1`, `feature2`, `feature3`, `feature4`, `feature5`, `fraud_label`
+
+🔧 Extra features (like ratio/log/sqrt) will be auto-calculated by the app.
 """)
+
+# st.markdown("""
+# **📂 Upload a CSV file**  
+# Your file **must** have these 6 columns:   
+# Like `feature1`, `feature2`, `feature3`, `feature4`, `feature5`, `fraud_label` 
+# """)
 
 # ✅ Sample CSV Download
 sample_url = "https://raw.githubusercontent.com/touhid71/customer_fraud_detection/main/data/sample_data.csv"
@@ -48,14 +55,14 @@ sample_csv = response.text
 st.download_button(
     label="📥 Download Sample CSV",
     data=sample_csv,
-    file_name='sample_input.csv',
+    file_name='sample_data.csv',
     mime='text/csv'
 )
 
 # ✅ File Upload
 uploaded_file = st.file_uploader("Upload your CSV", type=['csv'])
 
-required_columns = ['feature1', 'feature2', 'feature3', 'feature4', 'feature5']
+required_columns = ['feature1', 'feature2', 'feature3', 'feature4', 'feature5','fraud_label']
 
 if uploaded_file is not None:
     try:
